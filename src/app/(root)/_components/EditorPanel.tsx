@@ -5,7 +5,7 @@ import { defineMonacoThemes, LANGUAGE_CONFIG } from "../_constants";
 import { Editor } from "@monaco-editor/react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { RotateCcwIcon, ShareIcon, TypeIcon } from "lucide-react";
+import { RotateCcwIcon, ShareIcon, TypeIcon, Trash2Icon, PlayIcon } from "lucide-react";
 import { useClerk } from "@clerk/nextjs";
 import { EditorPanelSkeleton } from "./EditorPanelSkeleton";
 import useMounted from "@/hooks/useMounted";
@@ -43,6 +43,19 @@ function EditorPanel() {
     const size = Math.min(Math.max(newSize, 12), 24);
     setFontSize(size);
     localStorage.setItem("editor-font-size", size.toString());
+  };
+
+  const handleDelete = () => {
+    if (editor) {
+      editor.setValue("");
+      localStorage.removeItem(`editor-code-${language}`);
+    }
+  };
+
+  const handleRun = async () => {
+    // Import and use the runCode function from the store
+    const { runCode } = useCodeEditorStore.getState();
+    await runCode();
   };
 
   if (!mounted) return null;
@@ -88,6 +101,28 @@ function EditorPanel() {
               aria-label="Reset to default code"
             >
               <RotateCcwIcon className="size-4 text-gray-400" />
+            </motion.button>
+
+            {/* Delete Button */}
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleDelete}
+              className="p-2 bg-[#1e1e2e] hover:bg-red-500/20 rounded-lg ring-1 ring-white/5 transition-colors group"
+              aria-label="Delete all code"
+            >
+              <Trash2Icon className="size-4 text-gray-400 group-hover:text-red-400 transition-colors" />
+            </motion.button>
+
+            {/* Run Button */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleRun}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg overflow-hidden bg-gradient-to-r from-green-500 to-green-600 opacity-90 hover:opacity-100 transition-opacity"
+            >
+              <PlayIcon className="size-4 text-white" />
+              <span className="text-sm font-medium text-white">Run</span>
             </motion.button>
 
             {/* Share Button */}
